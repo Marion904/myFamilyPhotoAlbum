@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="@string/eMail"
-            android:layout_margin="50dp"
+            android:layout_margin="10dp"
             android:id="@+id/eMailLogIn"
             android:textSize="30sp"
             android:textColorHint="@color/colorText"
@@ -66,13 +66,14 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:layout_marginBottom="5dp"
         android:orientation="horizontal">
 
         <Button
             android:layout_width="0dp"
             android:layout_weight="1"
             android:background="@color/colorButton"
-            android:textSize="20sp"
+            android:textSize="15sp"
             android:gravity="center"
             android:textColor="@color/colorText"
             android:textAlignment="center"
@@ -84,7 +85,20 @@
         <Button
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:textSize="20sp"
+            android:background="@color/colorButton"
+            android:textSize="15sp"
+            android:gravity="center"
+            android:textColor="@color/colorText"
+            android:textAlignment="center"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
+            android:id="@+id/connect"
+            android:text="@string/connection"
+            android:layout_height="match_parent" />
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textSize="15sp"
             android:gravity="center"
             android:textColor="@color/colorText"
             android:textAlignment="center"
