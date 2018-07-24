@@ -2,7 +2,7 @@ package com.example.accueil.myfamilyphotoalbum.model;
 
 import java.util.Date;
 
-public class Content {
+public abstract class Content {
 
     private User owner;
 
@@ -12,6 +12,8 @@ public class Content {
     private Content origin;
     private float rate;
 
+    public Content() {
+    }
 
     public Content(User owner, String caption, Date date) {
         this.owner = owner;
@@ -27,11 +29,19 @@ public class Content {
         this.rate = 0;
     }
 
+
+
     public User getOwner() {
         return owner;
     }
 
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
 
+    public void setOrigin(Content origin) {
+        this.origin = origin;
+    }
 
     public String getCaption() {
         return caption;

@@ -7,6 +7,7 @@ public class User {
     private String userName;
     private String pwd;
     private boolean isModerator;
+    private ContentFactory contentFactory;
 
     public User(String email,String userName,String pwd){
         this.email=email;
@@ -77,4 +78,7 @@ public class User {
     public void setModerator(boolean moderator) {
         isModerator = moderator;
     }
+
+
+
 }

@@ -7,7 +7,10 @@ import java.util.Date;
 public class Picture extends Content {
     private String url;
 
-    public Picture(User owner, String caption, Date date,String url) {
+    public Picture() {
+    }
+
+    public Picture(User owner, String caption, Date date, String url) {
         super(owner, caption, date);
         this.url=url;
     }
