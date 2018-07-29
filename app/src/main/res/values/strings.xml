@@ -8,6 +8,7 @@
     <string name="newUserButton">Pas encore inscrit</string>
     <string name="UserButton">Déjà inscrit?</string>
     <string name="pwd">Mot de passe</string>
+    <string name="pwdConfirm">Confirmer mot de passe</string>
     <string name="eMail">eMail</string>
     <string name="forgotPwdButton">Mot de passe oublié?</string>
     <string name="questionButton">Une question?</string>
@@ -17,8 +18,15 @@
     <string name="connection">Go</string>
     <string name="CGU">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>
     <string name="seeYou">A bientôt!</string>
+    <string name="confirmEmail">Confirme ton email</string>
     <string name="firstName">Prénom</string>
     <string name="lastName">Nom</string>
     <string name="AKA">Pseudo</string>
+    <string name="recoverPwd">Envoi</string>
+    <string name="noEmail">Merci de renseigner ton email!</string>
+    <string name="noPwd">Indique ton mot de passe</string>
+    <string name="incorrectEmail">Adresse mail incorrecte!</string>
+    <string name="notMatchingPwd">Les 2 mots de passe doivent concorder</string>
+    <string name="noUserName">Donne ton pseudo!</string>
     <string name="contentDesc">Table avec des polaroïds, une tasse de café, une ardoise, un appareil photo</string>
 </resources>

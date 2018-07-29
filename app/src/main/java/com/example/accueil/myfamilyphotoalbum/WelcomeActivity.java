@@ -14,8 +14,8 @@ public class WelcomeActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
 
-        signIn = (Button) findViewById(R.id.signIn);
-        signUp = (Button) findViewById(R.id.signUp);
+        signIn = findViewById(R.id.signIn);
+        signUp = findViewById(R.id.signUp);
 
         signIn.setOnClickListener(this);
         signUp.setOnClickListener(this);
