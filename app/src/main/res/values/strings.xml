@@ -23,6 +23,13 @@
     <string name="lastName">Nom</string>
     <string name="AKA">Pseudo</string>
     <string name="recoverPwd">Envoi</string>
+    <string name="addContent">Ajouter une photo</string>
+    <string name="logOut">Déconnexion</string>
+    <string name="profile">Mon profile</string>
+    <string name="signUpFailure">createUserWithEmail:failure</string>
+    <string name="failure">Raté!</string>
+    <string name="logInOk">Connection réussie</string>
+    <string name="logInKo">Connection ratée</string>
     <string name="noEmail">Merci de renseigner ton email!</string>
     <string name="noPwd">Indique ton mot de passe</string>
     <string name="incorrectEmail">Adresse mail incorrecte!</string>

@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "389463935896",
+    "firebase_url": "https://myfamilyphotoalbum-3fd84.firebaseio.com",
+    "project_id": "myfamilyphotoalbum-3fd84",
+    "storage_bucket": "myfamilyphotoalbum-3fd84.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:389463935896:android:874d1ae7ed2469df",
+        "android_client_info": {
+          "package_name": "com.example.accueil.myfamilyphotoalbum"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "389463935896-88ldo2glj3a9mpa2020t2sogc1rvt7gv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.accueil.myfamilyphotoalbum",
+            "certificate_hash": "c2eacfa8a575c1e4d69862704e00b955981887ca"
+          }
+        },
+        {
+          "client_id": "389463935896-gr5ttik6rsenuh82qt3kp8tih8q4aub4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDID2e4e1lcp7mVAJO-lA4nhOprQT-lu0Q"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "389463935896-gr5ttik6rsenuh82qt3kp8tih8q4aub4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

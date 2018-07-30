@@ -1,8 +1,9 @@
 package com.example.accueil.myfamilyphotoalbum.model;
 
 public class User {
+    private String idUser;
     private String email;
-    private String lastName;
+//    private String lastName;
     private String firstName;
     private String userName;
     private String pwd;
@@ -20,19 +21,29 @@ public class User {
         this.email=email;
         this.userName=userName;
         this.firstName=fN;
+        this.pwd = pwd;
         isModerator=false;
-    }
 
+    }
+/**
     public User(String email,String userName,String fN,String lN,String pwd){
         this.email=email;
         this.userName=userName;
         this.firstName=fN;
-        this.lastName=lN;
+//        this.lastName=lN;
+        this.pwd=pwd;
         isModerator=false;
     }
-
+**/
     public String getPwd() {
         return pwd;
+    }
+
+    public void setIdUser(String idUser){
+        this.idUser = idUser;
+    }
+    public String getIdUser(){
+        return this.idUser;
     }
 
     public void setPwd(String pwd) {
@@ -46,7 +57,7 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
-
+/**
     public String getLastName() {
         return lastName;
     }
@@ -54,7 +65,7 @@ public class User {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-
+**/
     public String getFirstName() {
         return firstName;
     }

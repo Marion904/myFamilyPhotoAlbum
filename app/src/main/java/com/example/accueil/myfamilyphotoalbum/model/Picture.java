@@ -44,6 +44,10 @@ public class Picture extends Content {
     }
 
 
+    @Override
+    public String toString() {
+        return "Picture";
+    }
 
     @Override
     public Date getDate() {
