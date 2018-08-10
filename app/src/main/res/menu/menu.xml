@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/myProfile"
+        android:icon="@drawable/ic_profile"
+        android:title="@string/profile"
+       />
+    <item android:id="@+id/album"
+        android:title="@string/album" />
+    <item android:id="@+id/addContent"
+        android:icon="@drawable/ic_add_content"
+        android:title="@string/addContent" >
+        <menu>
+            <item android:id="@+id/addPic"
+                android:title="@string/addPic"
+                android:icon="@drawable/photo_camera"/>
+            <item android:id="@+id/addText"
+                android:title="@string/addText"
+                android:icon="@drawable/commenting"/>
+        </menu>
+    </item>
+    <item android:id="@+id/logOut"
+        android:icon="@drawable/ic_log_out"
+        android:title="@string/logOut" />
+
+</menu>

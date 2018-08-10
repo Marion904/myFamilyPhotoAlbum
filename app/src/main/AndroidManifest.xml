@@ -23,7 +23,10 @@
         <activity android:name=".WelcomeActivityTest" />
         <activity android:name=".SignInActivityTest" />
         <activity android:name=".SignUpActivityTest" />
-        <activity android:name=".ForgotPwd"></activity>
+        <activity android:name=".ForgotPwdActivity" />
+        <activity android:name=".AddPictureActivity" />
+        <activity android:name=".AddTextActivity" />
+        <activity android:name=".MyProfileActivity"></activity>
     </application>
 
 </manifest>

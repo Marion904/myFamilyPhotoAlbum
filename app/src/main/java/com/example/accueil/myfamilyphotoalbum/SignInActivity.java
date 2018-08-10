@@ -47,19 +47,30 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
         forgotPwdButton.setOnClickListener(this);
         mAuth =FirebaseAuth.getInstance();
 
+
+        //if getCurrentUser does not returns null
+        if (mAuth.getCurrentUser() != null) {
+            //that means user is already logged in
+            //so close this activity
+            finish();
+
+            //and open profile activity
+            startActivity(new Intent(SignInActivity.this, MainActivity.class));
+
+        }
+
     }
 
-    public boolean checkContents(){
-        eMailContent = eMailLogIn.getText().toString();
-        pwdContent = pwdLogIn.getText().toString();
-        if (pwdContent.isEmpty()){
-            Toast.makeText(this,getString(R.string.noPwd),Toast.LENGTH_LONG).show();
+    public boolean checkContents(String eMailContent,String pwdContent) {
+
+        if (pwdContent.isEmpty()) {
+            Toast.makeText(this, getString(R.string.noPwd), Toast.LENGTH_LONG).show();
             return false;
-        }else {
+        } else {
             boolean checkEmail = EmailValidator.getInstance(false).isValid(eMailContent);
             //boolean checkUser = EmailValidator.getInstance(false).isValidUser(eMailContent);
-            if(!checkEmail){
-                Toast.makeText(this,getString(R.string.incorrectEmail),Toast.LENGTH_LONG).show();
+            if (!checkEmail) {
+                Toast.makeText(this, getString(R.string.incorrectEmail), Toast.LENGTH_LONG).show();
             }
             return checkEmail;
         }
@@ -82,14 +93,14 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                             Log.d(TAG, getString(R.string.logInOk));
                             FirebaseUser fUser = mAuth.getCurrentUser();
                             user = updateUI(fUser);
-                            startActivity(new Intent(SignInActivity.this,WelcomeActivity.class));
+                            startActivity(new Intent(SignInActivity.this,MainActivity.class));
                             finish();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, getString(R.string.logInKo), task.getException());
                             Toast.makeText(SignInActivity.this,getString(R.string.failure),
                                     Toast.LENGTH_SHORT).show();
-                            user=updateUI(null);
+                            //user=null;
                         }
                     }
                 });
@@ -103,11 +114,14 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                 finish();
                 break;
             case R.id.connect:
-               signInUser(eMailContent,pwdContent);
-
+                eMailContent = eMailLogIn.getText().toString();
+                pwdContent = pwdLogIn.getText().toString();
+                if(checkContents(eMailContent,pwdContent)){
+                    signInUser(eMailContent,pwdContent);
+                }
                 break;
             case R.id.forgotPwd:
-                startActivity(new Intent(SignInActivity.this,ForgotPwd.class));
+                startActivity(new Intent(SignInActivity.this,ForgotPwdActivity.class));
                 finish();
                 break;
 

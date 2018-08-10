@@ -3,11 +3,11 @@ package com.example.accueil.myfamilyphotoalbum;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class ForgotPwd extends AppCompatActivity {
+public class MyProfileActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_forgot_pwd);
+        setContentView(R.layout.activity_my_profile);
     }
 }

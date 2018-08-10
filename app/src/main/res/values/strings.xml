@@ -15,6 +15,10 @@
     <string name="logIn">Connecte-toi</string>
     <string name="cancel">Annuler</string>
     <string name="ok">Ok</string>
+    <string name="album">Album</string>
+    <string name="addPicture">Photo</string>
+    <string name="addText">Commentaire</string>
+    <string name="caption">Légende</string>
     <string name="connection">Go</string>
     <string name="CGU">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>
     <string name="seeYou">A bientôt!</string>
@@ -23,11 +27,15 @@
     <string name="lastName">Nom</string>
     <string name="AKA">Pseudo</string>
     <string name="recoverPwd">Envoi</string>
-    <string name="addContent">Ajouter une photo</string>
+    <string name="addContent">Ajouter un élément</string>
+    <string name="addPictureTitle">Ajouter une photo</string>
+    <string name="addTextTitle">Ajouter un commentaire</string>
+    <string name="addPic">Photo</string>
     <string name="logOut">Déconnexion</string>
     <string name="profile">Mon profile</string>
     <string name="signUpFailure">createUserWithEmail:failure</string>
     <string name="failure">Raté!</string>
+    <string name="closeApp">Fermer</string>
     <string name="logInOk">Connection réussie</string>
     <string name="logInKo">Connection ratée</string>
     <string name="noEmail">Merci de renseigner ton email!</string>

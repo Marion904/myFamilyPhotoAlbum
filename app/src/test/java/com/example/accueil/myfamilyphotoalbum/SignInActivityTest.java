@@ -69,7 +69,7 @@ public class SignInActivityTest {
         // 10
         ShadowIntent shadowIntent = shadowOf(startedIntent);
         // 11
-        assertThat(shadowIntent.getIntentClass().getName(), equalTo(ForgotPwd.class.getName()));
+        assertThat(shadowIntent.getIntentClass().getName(), equalTo(ForgotPwdActivity.class.getName()));
     }
 
     @Test
@@ -116,19 +116,19 @@ public class SignInActivityTest {
         EditText pwdLogIn = myActivity.findViewById(R.id.pwdLogIn);
         eMailLogIn.setText("");
         pwdLogIn.setText("");
-        assertEquals(myActivity.checkContents(),false);
+        assertEquals(myActivity.checkContents(eMailLogIn.getText().toString(),pwdLogIn.getText().toString()),false);
         eMailLogIn.setText("marion@gmail");
         pwdLogIn.setText("ijiopji");
-        assertEquals(myActivity.checkContents(),true);
+        assertEquals(myActivity.checkContents(eMailLogIn.getText().toString(),pwdLogIn.getText().toString()),true);
         eMailLogIn.setText("mariongmail.com");
         pwdLogIn.setText("jiojipo");
-        assertEquals(myActivity.checkContents(),false);
+        assertEquals(myActivity.checkContents(eMailLogIn.getText().toString(),pwdLogIn.getText().toString()),false);
         eMailLogIn.setText("marion@gmail.com");
         pwdLogIn.setText("");
-        assertEquals(myActivity.checkContents(),false);
+        assertEquals(myActivity.checkContents(eMailLogIn.getText().toString(),pwdLogIn.getText().toString()),false);
         eMailLogIn.setText("marion@gmail.com");
         pwdLogIn.setText("kopkpo");
-        assertEquals(myActivity.checkContents(),true);
+        assertEquals(myActivity.checkContents(eMailLogIn.getText().toString(),pwdLogIn.getText().toString()),true);
 
     }
 

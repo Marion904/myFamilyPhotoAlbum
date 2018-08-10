@@ -108,27 +108,27 @@ public class SignUpActivityTest {
         pwdSignUp.setText("");
         pwdConfirm.setText("");
         userN.setText("");
-        assertEquals(myActivity.checkUserInfo(), false);
+        assertEquals(myActivity.checkUserInfo(userN.getText().toString(),eMailSignUp.getText().toString(),pwdSignUp.getText().toString(),pwdConfirm.getText().toString()), false);
         eMailSignUp.setText("marionmail.com");
         pwdSignUp.setText("ijiojipo");
         pwdConfirm.setText("ijiojipo");
         userN.setText("Moi");
-        assertEquals(myActivity.checkUserInfo(), false);
+        assertEquals(myActivity.checkUserInfo(userN.getText().toString(),eMailSignUp.getText().toString(),pwdSignUp.getText().toString(),pwdConfirm.getText().toString()), false);
         eMailSignUp.setText("marion@gmail.com");
         pwdSignUp.setText("ijiojipo");
         pwdConfirm.setText("ijiojipo");
         userN.setText("");
-        assertEquals(myActivity.checkUserInfo(), false);
+        assertEquals(myActivity.checkUserInfo(userN.getText().toString(),eMailSignUp.getText().toString(),pwdSignUp.getText().toString(),pwdConfirm.getText().toString()), false);
         eMailSignUp.setText("marion@gmail.com");
         pwdSignUp.setText("ijiojipo");
         pwdConfirm.setText("ijojipo");
         userN.setText("Moi");
-        assertEquals(myActivity.checkUserInfo(), false);
+        assertEquals(myActivity.checkUserInfo(userN.getText().toString(),eMailSignUp.getText().toString(),pwdSignUp.getText().toString(),pwdConfirm.getText().toString()), false);
         eMailSignUp.setText("marion@gmail.com");
         pwdSignUp.setText("ijiojipo");
         pwdConfirm.setText("ijiojipo");
         userN.setText("Moi");
-        assertEquals(myActivity.checkUserInfo(), true);
+        assertEquals(myActivity.checkUserInfo(userN.getText().toString(),eMailSignUp.getText().toString(),pwdSignUp.getText().toString(),pwdConfirm.getText().toString()), true);
     }
 
 }

@@ -4,8 +4,8 @@ import java.util.Date;
 
 public abstract class Content {
 
-    private User owner;
-
+    private String owner;
+    private String id;
     private String caption;
 
     private Date date;
@@ -15,13 +15,15 @@ public abstract class Content {
     public Content() {
     }
 
-    public Content(User owner, String caption, Date date) {
+    public Content(String id,String owner, String caption, Date date) {
+        this.id = id;
         this.owner = owner;
         this.caption = caption;
         this.date = date;
         this.rate = 0;
     }
-    public Content(User owner, String caption, Date date, Content origin) {
+    public Content(String id, String owner, String caption, Date date, Content origin) {
+        this.id = id;
         this.owner = owner;
         this.caption = caption;
         this.date = date;
@@ -29,13 +31,19 @@ public abstract class Content {
         this.rate = 0;
     }
 
+    public String getId() {
+        return id;
+    }
 
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    public User getOwner() {
+    public String getOwner() {
         return owner;
     }
 
-    public void setOwner(User owner) {
+    public void setOwner(String owner) {
         this.owner = owner;
     }
 

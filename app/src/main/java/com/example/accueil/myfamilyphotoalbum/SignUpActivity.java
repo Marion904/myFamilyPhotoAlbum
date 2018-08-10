@@ -1,5 +1,6 @@
 package com.example.accueil.myfamilyphotoalbum;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.accueil.myfamilyphotoalbum.model.User;
@@ -25,6 +27,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     //private DatabaseReference mDatabase;
     private static final String TAG = "SignUpActivity";
     private static final String DATABASE_PATH_USERS = "user";
+
+
     EditText firstName,userName,eMailSignUp,pwdSignUp,pwdConfirm;
     Button signIn,register,cancel;
     User user;
@@ -35,6 +39,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
+
         //initializing firebase auth object
         mAuth = FirebaseAuth.getInstance();
         //mDatabase = FirebaseDatabase.getInstance().getReference(DATABASE_PATH_USERS);
@@ -98,7 +103,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                             FirebaseUser user = mAuth.getCurrentUser();
 
                             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                                    .setDisplayName(user.getEmail())
+                                    .setDisplayName(uName)
+
                                     //.setPhotoUri(Uri.parse("https://example.com/jane-q-user/profile.jpg"))
                                     .build();
 
@@ -140,6 +146,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 break;
 
             case R.id.confirmSignUp:
+
                 fName = firstName.getText().toString();
                 uName = userName.getText().toString();
                 eMailContent = eMailSignUp.getText().toString();
@@ -148,6 +155,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 if(checkUserInfo(uName,eMailContent,pwdContent,pwd2)){
                     if(fName.isEmpty()){
                         user = new User(eMailContent,uName,pwdContent);
+
                     }else{
                         user = new User(eMailContent,uName,fName, pwdContent);
                     }
