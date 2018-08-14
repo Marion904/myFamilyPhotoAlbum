@@ -46,4 +46,10 @@
     <string name="noUserName">Donne ton pseudo!</string>
     <string name="contentDesc">Table avec des polaroïds, une tasse de café, une ardoise, un appareil photo</string>
     <string name="cameraNeeded">You need to allow the camera</string>
+    <string name="progress_uploading">Chargement en cours</string>
+    <string name="upload_success">Chargement réussi</string>
+    <string name="upload_failure">Echec du chargement</string>
+    <string name="taking_pic_failure">Taking picture failed.</string>
+    <string name="progress_auth">récupération utilisateur</string>
+    <string name="nothing_to_upload">Rien à télécharger</string>
 </resources>

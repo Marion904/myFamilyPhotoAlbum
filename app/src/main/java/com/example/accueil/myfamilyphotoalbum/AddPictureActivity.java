@@ -2,7 +2,11 @@ package com.example.accueil.myfamilyphotoalbum;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -15,8 +19,10 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -31,10 +37,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.accueil.myfamilyphotoalbum.Controller.Constants;
+import com.example.accueil.myfamilyphotoalbum.Service.MyUploadService;
 import com.example.accueil.myfamilyphotoalbum.model.Picture;
 import com.example.accueil.myfamilyphotoalbum.model.PictureFactory;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -49,6 +57,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class AddPictureActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -73,7 +82,19 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
     private StorageReference mStorageRef;
     private Picture mPicture;
     private EditText mEditTextCaption;
-    private int i;
+    private static final String TAG = "AddPictureActivity";
+
+    private static final int RC_TAKE_PICTURE = 101;
+
+    private static final String KEY_FILE_URI = "key_file_uri";
+    private static final String KEY_DOWNLOAD_URL = "key_download_url";
+
+    private BroadcastReceiver mBroadcastReceiver;
+    private ProgressDialog mProgressDialog;
+
+
+    private Uri mFileUri = null;
+    private Uri mDownloadUrl = null;
     private Date now;
 
     private String uploadId;
@@ -114,7 +135,7 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
 
         buttonRotate.setClickable(false);
 
-        i = (int) (new Date().getTime()/1000);
+
         now = new Date();
         idUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
         displayName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
@@ -123,6 +144,40 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
         mPicture.setOwner(idUser);
         mPicture.setId(uploadId);
         mPicture.setDate(now);
+
+        // Restore instance state
+        if (savedInstanceState != null) {
+            mFileUri = savedInstanceState.getParcelable(KEY_FILE_URI);
+            //mDownloadUrl = savedInstanceState.getParcelable(KEY_DOWNLOAD_URL);
+        }
+        onNewIntent(getIntent());
+
+        // Local broadcast receiver
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d(TAG, "onReceive:" + intent);
+                hideProgressDialog();
+
+                switch (intent.getAction()) {
+                    
+                    case MyUploadService.UPLOAD_COMPLETED:
+                    case MyUploadService.UPLOAD_ERROR:
+                        onUploadResultIntent(intent);
+                        break;
+                }
+            }
+        };
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        // Check if this Activity was launched by clicking on an upload notification
+        if (intent.hasExtra(MyUploadService.EXTRA_DOWNLOAD_URL)) {
+            onUploadResultIntent(intent);
+        }
 
     }
 
@@ -135,6 +190,11 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
 
+        // Register receiver for uploads
+        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(this);
+
+        manager.registerReceiver(mBroadcastReceiver, MyUploadService.getIntentFilter());
+
     }
 
     private void updateUI(FirebaseUser user) {
@@ -146,6 +206,26 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
 
         }
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // Unregister download receiver
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+        out.putParcelable(KEY_FILE_URI, mFileUri);
+
+    }
+
+
+
+
+
 
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater menuInflater = getMenuInflater();
@@ -183,9 +263,18 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+
+        Log.d(TAG, "launchCamera");
+
+        // Pick an image from storage
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("image/*");
+        startActivityForResult(intent, RC_TAKE_PICTURE);
         /**Ensure there is a camera activity to handle the Intent*/
-        if (takePictureIntent.resolveActivity(this.getPackageManager()) != null) {
+/**
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (takePictureIntent.resolveActivity(this.getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             //Create the file where the photo should go
 
@@ -215,8 +304,30 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
 
 
         }
+        **/
     }
 
+    private void signInAnonymously() {
+        // Sign in anonymously. Authentication is required to read or write from Firebase Storage.
+        showProgressDialog(getString(R.string.progress_auth));
+        mAuth.signInAnonymously()
+                .addOnSuccessListener(this, new OnSuccessListener<AuthResult>() {
+                    @Override
+                    public void onSuccess(AuthResult authResult) {
+                        Log.d(TAG, "signInAnonymously:SUCCESS");
+                        hideProgressDialog();
+                        updateUI(authResult.getUser());
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        Log.e(TAG, "signInAnonymously:FAILURE", exception);
+                        hideProgressDialog();
+                        updateUI(null);
+                    }
+                });
+    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode,data);
@@ -235,18 +346,31 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
 
         }
 
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE)) {
+            if (resultCode == RESULT_OK) {
+                imageUri = data.getData();
 
-            imageUri = data.getData();
-            Bundle extras = data.getExtras();
+                if (imageUri != null) {
 
-            bitmapOrg = (Bitmap) extras.get("data");
-            bitmapOrg = getResizedBitmap(bitmapOrg,300,300);
-            showPhoto.setImageBitmap(bitmapOrg);
+                    //uploadFromUri(imageUri);
+                } else {
+                    Log.w(TAG, "File URI is null");
+                }
+                Bundle extras = data.getExtras();
+
+                bitmapOrg = (Bitmap) extras.get("data");
+                bitmapOrg = getResizedBitmap(bitmapOrg,300,300);
+                showPhoto.setImageBitmap(bitmapOrg);
 
 
-            galleryAddPic();
-            return;
+                galleryAddPic();
+                return;
+            } else {
+                Toast.makeText(this, R.string.taking_pic_failure, Toast.LENGTH_SHORT).show();
+            }
+
+
+
         }
     }
 
@@ -322,6 +446,36 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
 
     }
 
+    private void uploadFromUri(Uri fileUri) {
+        Log.d(TAG, "uploadFromUri:src:" + fileUri.toString());
+
+        // Save the File URI
+        mFileUri = fileUri;
+
+        // Clear the last download, if any
+        updateUI(mAuth.getCurrentUser());
+        mDownloadUrl = null;
+
+        // Start MyUploadService to upload the file, so that the file is uploaded
+        // even if this Activity is killed or put in the background
+        startService(new Intent(this, MyUploadService.class)
+                .putExtra(MyUploadService.EXTRA_FILE_URI, fileUri)
+                .setAction(MyUploadService.ACTION_UPLOAD));
+
+        // Show loading spinner
+        showProgressDialog(getString(R.string.progress_uploading));
+    }
+
+
+
+    private void onUploadResultIntent(Intent intent) {
+        // Got a new intent from MyUploadService with a success or failure
+        mDownloadUrl = intent.getParcelableExtra(MyUploadService.EXTRA_DOWNLOAD_URL);
+        mFileUri = intent.getParcelableExtra(MyUploadService.EXTRA_FILE_URI);
+
+        updateUI(mAuth.getCurrentUser());
+    }
+
     public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
         int width = bm.getWidth();
         int height = bm.getHeight();
@@ -393,7 +547,13 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
         if (v == buttonUpload) {
             caption = mEditTextCaption.getText().toString().trim();
             mPicture.setCaption(caption);
-            uploadFile();
+            //uploadFile();
+            if(imageUri!=null){
+                uploadFromUri(imageUri);
+            }else{
+                Toast.makeText(this,getString(R.string.nothing_to_upload),Toast.LENGTH_SHORT).show();
+            }
+
             mDatabase.child(mPicture.getOwner()).child(mPicture.toString()).child(mPicture.getId()).setValue(mPicture);
             mEditTextCaption.setEnabled(false);
 

@@ -7,8 +7,8 @@
     <item android:id="@+id/album"
         android:title="@string/album" />
     <item android:id="@+id/addContent"
-        android:icon="@drawable/ic_add_content"
         android:title="@string/addContent" >
+        android:icon="@drawable/ic_add_content"
         <menu>
             <item android:id="@+id/addPic"
                 android:title="@string/addPic"
