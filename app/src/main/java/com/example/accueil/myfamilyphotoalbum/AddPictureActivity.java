@@ -264,15 +264,15 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
 
     private void dispatchTakePictureIntent() {
 
-
+/**
         Log.d(TAG, "launchCamera");
 
         // Pick an image from storage
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("image/*");
         startActivityForResult(intent, RC_TAKE_PICTURE);
-        /**Ensure there is a camera activity to handle the Intent*/
-/**
+        /**Ensure there is a camera activity to handle the Intent*
+**/
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             if (takePictureIntent.resolveActivity(this.getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
@@ -304,9 +304,9 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
 
 
         }
-        **/
-    }
 
+    }
+/**
     private void signInAnonymously() {
         // Sign in anonymously. Authentication is required to read or write from Firebase Storage.
         showProgressDialog(getString(R.string.progress_auth));
@@ -328,6 +328,8 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
                     }
                 });
     }
+
+    **/
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode,data);
@@ -428,6 +430,7 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
                 //progressDialog.dismiss();
+                hideProgressDialog();
 
                 Toast.makeText(AddPictureActivity.this, R.string.uploadOk, Toast.LENGTH_LONG).show();
 
@@ -439,6 +442,8 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
             @Override
             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                 double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                // Show loading spinner
+                showProgressDialog("Uploaded :" + (int) progress + "%");
                 //progressDialog.setMessage("Uploaded :" + (int) progress + "%");
             }
         });
@@ -571,13 +576,14 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
         if (v == buttonUpload) {
             caption = mEditTextCaption.getText().toString().trim();
             mPicture.setCaption(caption);
-            //uploadFile();
+            uploadFile();
+            /**
             if(imageUri!=null){
                 uploadFromUri(imageUri);
             }else{
                 Toast.makeText(this,getString(R.string.nothing_to_upload),Toast.LENGTH_SHORT).show();
             }
-
+            **/
             mDatabase.child(mPicture.getOwner()).child(mPicture.toString()).child(mPicture.getId()).setValue(mPicture);
             mEditTextCaption.setEnabled(false);
 
