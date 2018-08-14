@@ -346,7 +346,7 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
 
         }
 
-        if (requestCode == REQUEST_IMAGE_CAPTURE)) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
                 imageUri = data.getData();
 
@@ -514,6 +514,30 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
                 // that require this permission or it will force close like your
                 // original question
             }
+        }
+    }
+
+    private void showMessageDialog(String title, String message) {
+        AlertDialog ad = new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .create();
+        ad.show();
+    }
+
+    private void showProgressDialog(String caption) {
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setIndeterminate(true);
+        }
+
+        mProgressDialog.setMessage(caption);
+        mProgressDialog.show();
+    }
+
+    private void hideProgressDialog() {
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
         }
     }
     @Override
