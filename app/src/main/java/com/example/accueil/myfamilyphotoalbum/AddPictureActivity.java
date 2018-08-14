@@ -1,7 +1,10 @@
 package com.example.accueil.myfamilyphotoalbum;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.net.Uri;
@@ -9,6 +12,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,6 +30,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.accueil.myfamilyphotoalbum.Controller.Constants;
 import com.example.accueil.myfamilyphotoalbum.model.Picture;
 import com.example.accueil.myfamilyphotoalbum.model.PictureFactory;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -33,6 +39,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -43,7 +50,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class AddPictureActivity extends AppCompatActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener{
+public class AddPictureActivity extends AppCompatActivity implements View.OnClickListener{
 
     //Firebase references
     private DatabaseReference mDatabase;
@@ -51,6 +58,7 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
     FirebaseDatabase database;
 
     TextView contentType;
+
 
     //private StorageReference mStorageRef;
     private static final int PICK_IMAGE_REQUEST=255;
@@ -64,14 +72,15 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
     private String mCurrentPhotoPath;
     private StorageReference mStorageRef;
     private Picture mPicture;
-    private EditText mEditTextLegende;
+    private EditText mEditTextCaption;
+    private int i;
+    private Date now;
 
     private String uploadId;
-    private String legend;
-    private String urlSock;
+    private String caption;
+    private String urlPic;
     private String idUser;
     private String displayName;
-    private String type;
     public Bitmap bitmapOrg;
 
     PictureFactory mPicFactory;
@@ -81,11 +90,20 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_picture);
         contentType=this.findViewById(R.id.contentType);
+        buttonTakePicture = this.findViewById(R.id.cameraButton);
+        buttonSelectFromGallery = this.findViewById(R.id.galery);
+        buttonUpload = this.findViewById(R.id.buttonUpload);
+        buttonRotate = this.findViewById(R.id.rotateButton);
+        showPhoto = this.findViewById(R.id.imageView);
+        mEditTextCaption = this.findViewById(R.id.contentTitle);
         contentType.setText(R.string.addPictureTitle);
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
+
         updateUI(currentUser);
+
         database = FirebaseDatabase.getInstance();
+        mStorageRef = FirebaseStorage.getInstance().getReference();
         mDatabase= database.getReference("contents");
         uploadId = mDatabase.push().getKey();
 
@@ -96,15 +114,15 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
 
         buttonRotate.setClickable(false);
 
-        int i = (int) (new Date().getTime()/1000);
+        i = (int) (new Date().getTime()/1000);
+        now = new Date();
         idUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
         displayName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
         mPicFactory = new PictureFactory();
         mPicture = mPicFactory.createPicture();
         mPicture.setOwner(idUser);
         mPicture.setId(uploadId);
-
-
+        mPicture.setDate(now);
 
     }
 
@@ -141,24 +159,17 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
 
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
-
-
             case R.id.album:
                 startActivity(new Intent(AddPictureActivity.this,MainActivity.class));
                 break;
             case R.id.myProfile :
                 startActivity(new Intent(AddPictureActivity.this,MyProfileActivity.class));
                 break;
-
-
             case R.id.logOut:
                 mAuth.signOut();
                 finish();
                 break;
-
-
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -169,30 +180,35 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
 
         gallery.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(gallery, "Select Picture"), PICK_IMAGE_REQUEST);
-
-
     }
 
     private void dispatchTakePictureIntent() {
-
-
-
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         /**Ensure there is a camera activity to handle the Intent*/
         if (takePictureIntent.resolveActivity(this.getPackageManager()) != null) {
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            //Create the file where the photo should go
 
-            /** Create the file where the photo should go
-             */
             File photoFile=null;
             try {
                 photoFile = createImageFile();
+                //photoFile = new File(getFilesDir(),"Pictures");
+                //photoFile.mkdirs();
+                //File file = new File(photoFile,"pic");
+
+
             } catch (IOException ex) {
                 //Error occurred while creating the File
+                throw new RuntimeException("Error generating file", ex);
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                imageUri = FileProvider.getUriForFile(this,"com.example.android.fileprovider", photoFile);
+                try{
+                    imageUri = FileProvider.getUriForFile(AddPictureActivity.this,"com.example.accueil.myfamilyphotoalbum.fileprovider", photoFile);
+                }catch(IllegalArgumentException ie){
+                    throw new RuntimeException("Error getting the Uri",ie);
+                }
+
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
 
             }
@@ -206,7 +222,6 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
         super.onActivityResult(requestCode, resultCode,data);
         buttonRotate.setClickable(true);
         if (resultCode == RESULT_OK && requestCode == PICK_IMAGE_REQUEST) {
-
             imageUri = data.getData();
 
             try {
@@ -217,6 +232,7 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         }
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
@@ -240,12 +256,13 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
         String sdf = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + sdf + "_";
         File storageDir = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
+        File image = File.createTempFile(imageFileName,  /* prefix */
                 ".jpg",         /* suffix */
                 storageDir      /* directory */
         );
 
+        //File image = new File(Environment.getExternalStorageDirectory(),  imageFileName);
+        //return photo;
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
@@ -275,25 +292,24 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmapOrg.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] data = baos.toByteArray();
-        StorageReference picRef = mStorageRef.child(SyncStateContract.Constants.STORAGE_PATH_UPLOADS + uploadId );
+        StorageReference picRef = mStorageRef.child(Constants.STORAGE_PATH_UPLOADS + uploadId );
         UploadTask uploadTask = picRef.putBytes(data);
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                // Handle unsuccessful uploads
+                Toast.makeText(AddPictureActivity.this, (CharSequence) exception,Toast.LENGTH_LONG).show();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
                 //progressDialog.dismiss();
-                Toast.makeText(this, "Upload successfull", Toast.LENGTH_LONG);
+
+                Toast.makeText(AddPictureActivity.this, R.string.uploadOk, Toast.LENGTH_LONG).show();
 
                 //adding an upload to firebase database
-
                 urlPic = taskSnapshot.getDownloadUrl().toString();
                 mPicture.setUrl(urlPic);
-
             }
         }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -326,7 +342,7 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
 
     public Bitmap rotateBitmap(){
         Matrix matrix = new Matrix();
-        matrix.setRotate(SyncStateContract.Constants.BITMAP_ROTATE);
+        matrix.setRotate(Constants.BITMAP_ROTATE);
         bitmapOrg = Bitmap.createBitmap(bitmapOrg, 0, 0, bitmapOrg.getWidth(),bitmapOrg.getHeight(), matrix, true);
         showPhoto.setImageBitmap(bitmapOrg);
         return bitmapOrg;
@@ -349,12 +365,21 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onClick(View v) {
         if (v == buttonTakePicture) {
-            if (checkSelfPermission(getActivity(), android.Manifest.permission.CAMERA)
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
                     != PackageManager.PERMISSION_GRANTED) {
 
-                requestPermissions(new String[]{android.Manifest.permission.CAMERA},
-                        Constants.MY_REQUEST_CODE);
-            }else{
+                // Permission is not granted
+                // Should we show an explanation?
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        android.Manifest.permission.CAMERA)) {
+                    Toast.makeText(this, R.string.cameraNeeded, Toast.LENGTH_SHORT).show();
+                } else {
+                    // No explanation needed; request the permission
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{android.Manifest.permission.CAMERA},
+                            Constants.MY_REQUEST_CODE);
+                }
+            } else {
                 dispatchTakePictureIntent();
             }
         }
@@ -362,45 +387,16 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
             openGallery();
         }
 
-        if(v==buttonRotate){
+        if (v == buttonRotate) {
             rotateBitmap();
         }
         if (v == buttonUpload) {
-            legend=mEditTextLegende.getText().toString().trim();
-            mChaussette.setmLegende(legend);
+            caption = mEditTextCaption.getText().toString().trim();
+            mPicture.setCaption(caption);
             uploadFile();
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.pick_category)
-                    .setItems(R.array.colors_array, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which){
-                                case 0:
-                                    mChaussette.setmCategory(Constants.DATABASE_PATH_CATEGORY_1);
-                                    mDatabase.child(Constants.DATABASE_PATH_CATEGORY).child(Constants.DATABASE_PATH_CATEGORY_1).child(mChaussette.getmIdChaussette()).setValue(mChaussette);
-                                    mDatabase.child(Constants.DATABASE_PATH_ALL_UPLOADS).child(uploadId).setValue(mChaussette);
-                                    mDatabase.child(mChaussette.getmIdUser()).child(Constants.DATABASE_PATH_UPLOADS).child(mChaussette.getmIdChaussette()).setValue(mChaussette);
-                                    break;
-                                case 1:
-                                    mChaussette.setmCategory(Constants.DATABASE_PATH_CATEGORY_2);
-                                    mDatabase.child(Constants.DATABASE_PATH_CATEGORY).child(Constants.DATABASE_PATH_CATEGORY_2).child(mChaussette.getmIdChaussette()).setValue(mChaussette);
-                                    mDatabase.child(Constants.DATABASE_PATH_ALL_UPLOADS).child(uploadId).setValue(mChaussette);
-                                    mDatabase.child(mChaussette.getmIdUser()).child(Constants.DATABASE_PATH_UPLOADS).child(mChaussette.getmIdChaussette()).setValue(mChaussette);
-                                    break;
-                                case 2:
-                                    mChaussette.setmCategory(Constants.DATABASE_PATH_CATEGORY_3);
-                                    mDatabase.child(Constants.DATABASE_PATH_CATEGORY).child(Constants.DATABASE_PATH_CATEGORY_3).child(mChaussette.getmIdChaussette()).setValue(mChaussette);
-                                    mDatabase.child(Constants.DATABASE_PATH_ALL_UPLOADS).child(uploadId).setValue(mChaussette);
-                                    mDatabase.child(mChaussette.getmIdUser()).child(Constants.DATABASE_PATH_UPLOADS).child(mChaussette.getmIdChaussette()).setValue(mChaussette);
-                                    break;
-                                default:
-                                    mDatabase.child(Constants.DATABASE_PATH_ALL_UPLOADS).child(uploadId).setValue(mChaussette);
-                                    mDatabase.child(mChaussette.getmIdUser()).child(Constants.DATABASE_PATH_UPLOADS).child(mChaussette.getmIdChaussette()).setValue(mChaussette);
-                                    break;
-                            }
-                        }
-                    });
-            builder.show();
-            mEditTextLegende.setEnabled(false);
+            mDatabase.child(mPicture.getOwner()).child(mPicture.toString()).child(mPicture.getId()).setValue(mPicture);
+            mEditTextCaption.setEnabled(false);
 
         }
+    }
 }

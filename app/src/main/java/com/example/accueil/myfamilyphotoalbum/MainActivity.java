@@ -52,11 +52,15 @@ public class MainActivity extends AppCompatActivity {
         uName = this.findViewById(R.id.userName);
         //FirebaseApp.initializeApp(this);
         mAuth = FirebaseAuth.getInstance();
-        rowListItem = getAllItemList();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         database = FirebaseDatabase.getInstance();
         mDatabase= database.getReference("contents");
+
+
+        rowListItem = getAllItemList();
+
+
 
 
         updateUI(currentUser);

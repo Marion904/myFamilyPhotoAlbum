@@ -10,13 +10,13 @@ public class Picture extends Content {
     public Picture() {
     }
 
-    public Picture(User owner, String caption, Date date, String url) {
-        super(owner, caption, date);
+    public Picture(String id,String owner, String caption, Date date, String url) {
+        super(id, owner, caption, date);
         this.url=url;
     }
 
-    public Picture(User owner, String caption, Date date, Content origin,String url) {
-        super(owner, caption, date, origin);
+    public Picture(String id,String owner, String caption, Date date, Content origin,String url) {
+        super(id,owner, caption, date, origin);
         this.url=url;
     }
 
@@ -29,7 +29,7 @@ public class Picture extends Content {
         this.url=url;
     }
     @Override
-    public User getOwner() {
+    public String getOwner() {
         return super.getOwner();
     }
 
@@ -42,7 +42,6 @@ public class Picture extends Content {
     public void setCaption(String caption) {
         super.setCaption(caption);
     }
-
 
     @Override
     public String toString() {

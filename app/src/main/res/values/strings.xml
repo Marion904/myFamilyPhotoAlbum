@@ -27,6 +27,7 @@
     <string name="lastName">Nom</string>
     <string name="AKA">Pseudo</string>
     <string name="recoverPwd">Envoi</string>
+    <string name="uploadOk">Upload successfull</string>
     <string name="addContent">Ajouter un élément</string>
     <string name="addPictureTitle">Ajouter une photo</string>
     <string name="addTextTitle">Ajouter un commentaire</string>
@@ -44,4 +45,5 @@
     <string name="notMatchingPwd">Les 2 mots de passe doivent concorder</string>
     <string name="noUserName">Donne ton pseudo!</string>
     <string name="contentDesc">Table avec des polaroïds, une tasse de café, une ardoise, un appareil photo</string>
+    <string name="cameraNeeded">You need to allow the camera</string>
 </resources>
