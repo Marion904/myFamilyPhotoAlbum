@@ -50,8 +50,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -71,7 +69,6 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
     //Firebase references
     private DatabaseReference mDatabaseRef;
     private FirebaseAuth mAuth;
-    FirebaseFirestore database;
     FirebaseStorage mStorage;
     FirebaseDatabase mDatabase;
 
@@ -90,6 +87,7 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
     private String mCurrentPhotoPath;
     private StorageReference mStorageRef;
     private Picture mPicture;
+    private String mPicUri;
     private EditText mEditTextCaption;
     private static final String TAG = "AddPictureActivity";
 
@@ -332,17 +330,11 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
             }
 
         }
-
+/**
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
                 imageUri = data.getData();
 
-                if (imageUri != null) {
-
-                    //uploadFromUri(imageUri);
-                } else {
-                    Log.w(TAG, "File URI is null");
-                }
                 Bundle extras = data.getExtras();
 
                 bitmapOrg = (Bitmap) extras.get("data");
@@ -358,7 +350,7 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
 
 
 
-        }
+        }**/
     }
 
 
@@ -378,6 +370,7 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
+    /**
     private void galleryAddPic() {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         File f = new File(mCurrentPhotoPath);
@@ -385,7 +378,7 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
     }
-
+*/
     public String getFileExtension(Uri uri) {
         ContentResolver cR = this.getContentResolver();
         MimeTypeMap mime = MimeTypeMap.getSingleton();
@@ -401,6 +394,8 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
         byte[] data = baos.toByteArray();
         StorageReference picRef = mStorageRef.child(Constants.STORAGE_PATH_UPLOADS + uploadId );
         final UploadTask uploadTask = picRef.putBytes(data);
+
+
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
@@ -409,38 +404,19 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                //Uri downloadUri;
                 taskSnapshot.getMetadata(); //contains file metadata such as size, content-type, and download URL.
                 //progressDialog.dismiss();
                 hideProgressDialog();
 
                 Toast.makeText(AddPictureActivity.this, R.string.uploadOk, Toast.LENGTH_LONG).show();
 
+
                 //adding an upload to firebase database
-
-
-                Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                    @Override
-                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                        if (!task.isSuccessful()) {
-                            throw task.getException();
-                        }
-
-                        // Continue with the task to get the download URL
-                        return mStorageRef.getDownloadUrl();
-                    }
-                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        if (task.isSuccessful()) {
-                            Uri downloadUri = task.getResult();
-                            urlPic = downloadUri.toString();
-                        } else {
-                            Log.w(TAG, "Error getting the url");
-                        }
-                    }
-                });
-
-                mPicture.setUrl(urlTask.toString());
+                Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
+                while (!urlTask.isSuccessful());
+                Uri downloadUrl = urlTask.getResult();
+                mPicUri = getFileExtension(downloadUrl);
             }
         }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -450,6 +426,7 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
                 showProgressDialog(getString(R.string.progress_uploading));
                 //progressDialog.setMessage("Uploaded :" + (int) progress + "%");
             }
+
         });
 
 
@@ -542,10 +519,13 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
         if (v == buttonUpload) {
             caption = mEditTextCaption.getText().toString().trim();
             mPicture.setCaption(caption);
+
+
             uploadFile();
+            mPicture.setUrl(mPicUri);
 
             mDatabaseRef.child(mPicture.getOwner()).child(mPicture.toString()).child(mPicture.getId()).setValue(mPicture);
-            mDatabaseRef.child(Constants.DATABASE_PATH_ALL_UPLOADS).setValue(mPicture);
+            mDatabaseRef.child(Constants.DATABASE_PATH_ALL_UPLOADS).child(mPicture.getId()).setValue(mPicture);
             mEditTextCaption.setEnabled(false);
 
         }

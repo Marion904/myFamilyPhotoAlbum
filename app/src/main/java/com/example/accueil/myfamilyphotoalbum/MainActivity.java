@@ -15,7 +15,9 @@ import android.widget.TextView;
 import com.example.accueil.myfamilyphotoalbum.Controller.Constants;
 import com.example.accueil.myfamilyphotoalbum.Controller.MyAdapter;
 import com.example.accueil.myfamilyphotoalbum.model.Content;
+import com.example.accueil.myfamilyphotoalbum.model.Picture;
 import com.example.accueil.myfamilyphotoalbum.model.PictureFactory;
+import com.example.accueil.myfamilyphotoalbum.model.Text;
 import com.example.accueil.myfamilyphotoalbum.model.TextFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -27,9 +29,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,11 +48,10 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     FirebaseDatabase database;
-    FirebaseFirestore db;
 
 
     //list to hold all the uploaded images
-    private List<Content> rowListItem;
+    private List<Picture> rowListItem;
     private TextView uName;
     private String userName;
     private static final String TAG ="#MainActivity";
@@ -64,14 +62,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         uName = this.findViewById(R.id.userName);
-        //FirebaseApp.initializeApp(this);
-        db = FirebaseFirestore.getInstance();
+
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference(Constants.DATABASE_PATH_CONTENTS);
-        Query query = mDatabase.child(Constants.DATABASE_PATH_ALL_UPLOADS);
+        mDatabase = database.getReference(Constants.DATABASE_PATH_CONTENTS).child(Constants.DATABASE_PATH_ALL_UPLOADS);
+        //Query query = mDatabase.child(Constants.DATABASE_PATH_ALL_UPLOADS);
 
 
         rowListItem = getAllItemList();
@@ -92,30 +89,16 @@ public class MainActivity extends AppCompatActivity {
         rVAdapter = new MyAdapter(rowListItem);
         recyclerView.setAdapter(rVAdapter);
 
-/**
+
         mDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-**/
-        query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 rowListItem.clear();
 
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    String  = postSnapshot.getValue(Content.class);
-
-                    rowListItem.add(content);
+                        Picture picture = postSnapshot.getValue(Picture.class);
+                        rowListItem.add(picture);
                     rVAdapter.notifyDataSetChanged();
                 }
             }
@@ -172,26 +155,12 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private List<Content> getAllItemList(){
+    private List<Picture> getAllItemList(){
 
-        final List<Content> allItems = new ArrayList<>();
+        final List<Picture> allItems = new ArrayList<>();
 
-        db.collection("users")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Content mContent = (Content) document.getData();
-                                allItems.add(mContent);
-                                //Log.d(TAG, document.getId() + " => " + document.getData());
-                            }
-                        } else {
-                            Log.w(TAG, "Error getting documents.", task.getException());
-                        }
-                    }
-                });
+
+
 
         return allItems;
     }
