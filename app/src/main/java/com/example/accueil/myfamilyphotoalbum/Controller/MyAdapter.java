@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.accueil.myfamilyphotoalbum.R;
 import com.example.accueil.myfamilyphotoalbum.model.Content;
 import com.example.accueil.myfamilyphotoalbum.model.Picture;
@@ -42,15 +43,24 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>  {
         if(content.toString().equals("Picture")){
             picture = (Picture) content;
             //holder.imageView.setImageBitmap(load(picture.getUrl()));
+            Glide.with(context).load(picture.getUrl())
+                    .placeholder(R.drawable.view_holder)
+                    .into(holder.imageView);
+//<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+            
+            holder.textView.setText(picture.getCaption());
+
+
         }else{
             text=(Text) content;
             holder.textView.setText((content.getCaption()));
+            //Glide.with(context).load(picture.getUrl()).into(holder.imageView);
         }
 
 
 
 
-//            Glide.with(context).load(content.getmImgChaussette()).into(holder.imageView);
+
             }
 
     @Override
