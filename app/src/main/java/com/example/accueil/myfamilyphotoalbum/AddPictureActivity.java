@@ -88,6 +88,7 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
     private StorageReference mStorageRef;
     private Picture mPicture;
     private String mPicUri;
+    private StorageReference picRef;
     private EditText mEditTextCaption;
     private static final String TAG = "AddPictureActivity";
 
@@ -392,7 +393,7 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmapOrg.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] data = baos.toByteArray();
-        StorageReference picRef = mStorageRef.child(Constants.STORAGE_PATH_UPLOADS + uploadId );
+        picRef = mStorageRef.child(Constants.STORAGE_PATH_UPLOADS + uploadId );
         final UploadTask uploadTask = picRef.putBytes(data);
 
 
@@ -404,19 +405,41 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                //Uri downloadUri;
-                taskSnapshot.getMetadata(); //contains file metadata such as size, content-type, and download URL.
-                //progressDialog.dismiss();
-                hideProgressDialog();
+
+
+
+                Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                    @Override
+                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                        if (!task.isSuccessful()) {
+                            throw task.getException();
+                        }
+
+                        // Continue with the task to get the download URL
+                        return picRef.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if (task.isSuccessful()) {
+                            Uri downloadUri = task.getResult();
+                            mPicture.setUrl(downloadUri.toString());
+//                            mDatabaseRef.child(mPicture.getOwner()).child(mPicture.toString()).child(mPicture.getId()).setValue(mPicture);
+                            mDatabaseRef.child(Constants.DATABASE_PATH_ALL_UPLOADS).child(mPicture.getId()).setValue(mPicture);
+
+                            hideProgressDialog();
+
+                        } else {
+                            // Handle failures
+                            // ...
+                        }
+                    }
+                });
+
 
                 Toast.makeText(AddPictureActivity.this, R.string.uploadOk, Toast.LENGTH_LONG).show();
 
 
-                //adding an upload to firebase database
-                Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
-                while (!urlTask.isSuccessful());
-                Uri downloadUrl = urlTask.getResult();
-                mPicUri = getFileExtension(downloadUrl);
             }
         }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -522,10 +545,13 @@ public class AddPictureActivity extends AppCompatActivity implements View.OnClic
 
 
             uploadFile();
-            mPicture.setUrl(mPicUri);
 
-            mDatabaseRef.child(mPicture.getOwner()).child(mPicture.toString()).child(mPicture.getId()).setValue(mPicture);
-            mDatabaseRef.child(Constants.DATABASE_PATH_ALL_UPLOADS).child(mPicture.getId()).setValue(mPicture);
+            //mPicture.setUrl(mDownloadUrl );
+
+
+
+//            mDatabaseRef.child(mPicture.getOwner()).child(mPicture.toString()).child(mPicture.getId()).setValue(mPicture);
+  //          mDatabaseRef.child(Constants.DATABASE_PATH_ALL_UPLOADS).child(mPicture.getId()).setValue(mPicture);
             mEditTextCaption.setEnabled(false);
 
         }

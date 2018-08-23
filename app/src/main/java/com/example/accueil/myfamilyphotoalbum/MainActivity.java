@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference(Constants.DATABASE_PATH_CONTENTS).child(Constants.DATABASE_PATH_ALL_UPLOADS);
-        //Query query = mDatabase.child(Constants.DATABASE_PATH_ALL_UPLOADS);
+       // Query query = mDatabase.child(Constants.DATABASE_PATH_ALL_UPLOADS);
 
 
         rowListItem = getAllItemList();
@@ -159,11 +159,9 @@ public class MainActivity extends AppCompatActivity {
 
         final List<Picture> allItems = new ArrayList<>();
 
-
-
-
         return allItems;
     }
+
     private void updateUI(FirebaseUser user) {
         if (user == null) {
             finish();

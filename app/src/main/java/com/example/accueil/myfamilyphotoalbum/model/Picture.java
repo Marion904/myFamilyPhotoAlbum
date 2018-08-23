@@ -1,5 +1,7 @@
 package com.example.accueil.myfamilyphotoalbum.model;
 
+import android.net.Uri;
+
 import java.util.Date;
 
 
