@@ -16,11 +16,13 @@ public class Picture extends Content {
         super(id, owner, caption, date);
         this.url=url;
     }
+/*
 
     public Picture(String id,String owner, String caption, Date date, Content origin,String url) {
         super(id,owner, caption, date, origin);
         this.url=url;
     }
+*/
 
     public String getUrl() {
         return this.url;
