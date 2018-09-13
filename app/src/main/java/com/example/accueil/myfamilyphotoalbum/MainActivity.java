@@ -31,7 +31,9 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -86,18 +88,24 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
 
 
-        rVAdapter = new MyAdapter(rowListItem);
+        rVAdapter = new MyAdapter(MainActivity.this,rowListItem);
         recyclerView.setAdapter(rVAdapter);
 
 
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                Map<String, Picture> td = (HashMap<String,Picture>) dataSnapshot.getValue();
 
                 rowListItem.clear();
+//                Map<String, Picture> td = (HashMap<String,Picture>) dataSnapshot.getValue();
+
+//                rowListItem = (List<Picture>) td.values();
+//                rVAdapter.notifyDataSetChanged();
 
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         Picture picture = postSnapshot.getValue(Picture.class);
+
                         rowListItem.add(picture);
                     rVAdapter.notifyDataSetChanged();
                 }
